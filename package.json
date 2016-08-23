@@ -1,0 +1,16 @@
+{
+  "name": "file-association-of-bug-revisions",
+  "productName": "file-association-of-bug-revisions",
+  "version": "0.1.0",
+  "author": "Nitin",
+  "description": "Provides association between different files of bug fixing revisions within the project",
+  "main": "main.html",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "icon": {
+  	"type": "fa",
+  	"name": "leaf"
+  }
+}
