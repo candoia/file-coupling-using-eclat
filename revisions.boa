@@ -1,43 +1,42 @@
 p: Project = input;
 out : output collection[string] of string;
-
-isBugFixing := function(logging: string, issueRecord: set of string): bool{
-    lst := getAsArray(issueRecord);
-    foreach(i: int; def(lst[i])){
-        if(strfind(lst[i], logging) > -1){
-            return true;
-        }
-    }
-    return false;
-};
-
 issues: set of string;
 fileslist: string = "";
 bugfix: bool;
 
+isBugFixing := function(logging: string, issueRecord: set of string): bool{
+  lst := getAsArray(issueRecord);
+  foreach(i: int; def(lst[i])){
+    if(strfind(lst[i], logging) > -1){
+      return true;
+    }
+  }
+  return false;
+};
+
 visit(p, visitor {
-      before node: Issue -> {
-          add(issues, node.number);
-      }
+  before node: Issue -> {
+    add(issues, node.number);
+  }
 });
 
 visit(p, visitor {
   before rev: Revision -> {
     comment :string = rev.log;
     bugfix= isBugFixing(comment, issues);
-    if(bugfix){
-      if(len(rev.files) < 5){
-        foreach(i:int; rev.files[i]){
-          fileslist = fileslist+rev.files[i].name;
-          fileslist = fileslist + ",";
-        }
-        out[formattime("%c", rev.commit_date)] << fileslist;
-        fileslist = " ";
-       }
-     }
+    if(!bugfix || (len(rev.files) > 5)){
+        stop;
+    }
+  }
+
+  before node: ChangedFile ->{
+    fileslist = fileslist + node.name;
+    fileslist = fileslist + ",";
   }
 
   after node: Revision -> {
+    out[formattime("%c", node.commit_date)] << fileslist;
+    fileslist = "";
     bugfix = false;
   }
 });
